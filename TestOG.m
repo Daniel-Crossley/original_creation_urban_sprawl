@@ -1,8 +1,12 @@
-%% Initialisation
 R = 400;          % number of rows
 C = 400;          % number of columns
+spawn = false(100,100); %setting spawn matrix
+spawn(:,:) = rand(100,100) > 0.5; %randomising spawnpoint
 
-A = rand(R,C)<0.5;   % random initial configuration
+A = ones(R,C);   % creating blank land for population
+
+A(151:250, 151:250) = spawn; %seting spawnpoint to middle of land matrix
+
 D = 5 * A;           % Array that counts density 
 B = zeros(R,C); % Building/ resource
 % If B == 1, set that position to 1000
@@ -31,16 +35,14 @@ while ~done % See comments at the bottom of this file for an explanation of this
     % Determine whether a cell is live or not (density greater than or
     % eqaul to 5)
 
-    A = D >= 5;
-
     % Count how many live neighbours each cell has in its Moore neighbourhood
-    live_neighbours = A(north, :) + A(south, :) + A(:, east) + A(:, west) ...
-                    + A(north, east) + A(north, west) + A(south, east) + A(south, west);
+    live_neighbours = D(north, :) + D(south, :) + D(:, east) + D(:, west) ...
+                    + D(north, east) + D(north, west) + D(south, east) + D(south, west);
 
 
     % There are only 2 ways that a cell can live in the Game of Life:
-    alive_rule_1 = live_neighbours == 3;        % a cell lives if it has 3 live neighbours
-    alive_rule_2 = A & live_neighbours == 2;    % a cell lives if it's alive already, and has 2 live neighbours
+    alive_rule_1 = (live_neighbours > 10) & (live_neighbours < 16);        % a cell lives if it has 3 live neighbours
+    % alive_rule_2 = A & live_neighbours == 2;    % a cell lives if it's alive already, and has 2 live neighbours
 
     % These two rules determine the new state of every element
     A = alive_rule_1 | alive_rule_2;
@@ -54,9 +56,12 @@ while ~done % See comments at the bottom of this file for an explanation of this
 
     live_neighbouring_resource = L(north, :) + L(south, :) + L(:, east) + L(:, west);
 
-    resource_rule = neighbouring_resource > 0;
+    % Once a certain number of people are at the resource, allow no more
+    % people to join
 
-    live_neighbouring_resource_rule = live_neighbouring_resource > 0;
+    resource_rule = neighbouring_resource > 1;
+
+    live_neighbouring_resource_rule = live_neighbouring_resource > 1;
 
     L = live_neighbouring_resource_rule | resource_rule;
 
