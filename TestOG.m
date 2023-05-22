@@ -1,11 +1,16 @@
 %% Initialisation
 R = 400;          % number of rows
 C = 400;          % number of columns
+spawn = false(100,100); %setting spawn matrix
+spawn(:,:) = rand(100,100) > 0.5 %randomising spawnpoint
 
-A = rand(R,C)<0.5;   % random initial configuration
+A = ones(R,C);   % creating blank land for population
+
+A(151:250, 151:250) = spawn %seting spawnpoint to middle of land matrix
+
 D = 5 * A;           % Array that counts density 
 B = zeros(R,C); % Building/ resource
-% If B == 1, set that position to 1000
+% Set resource locations
 B(200,200) = 100;
 B(100,100) = 100;
 B(300,300) = 100;
