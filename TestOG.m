@@ -71,7 +71,7 @@ while ~done % See comments at the bottom of this file for an explanation of this
 
     % Show the next frame in the animation
     % handle.CData = ~A;  % this is a faster way to update the existing image, rather than redraw it with imshow
-    imshow(~D, 'InitialMagnification', 'Fit'); % this has the same effect as the line above, but is slower
+    imagesc(~D); % this has the same effect as the line above, but is slower
     drawnow
 
 end
