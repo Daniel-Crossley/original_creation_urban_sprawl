@@ -10,7 +10,6 @@ A(151:250, 151:250) = spawn; %seting spawnpoint to middle of land matrix
 D = 5 * A;           % Array that counts density 
 B = zeros(R,C); % Building/ resource
 % If B == 1, set that position to 1000
-B(200,200) = 100;
 B(100,100) = 100;
 B(300,300) = 100;
 
@@ -39,20 +38,20 @@ while ~done % See comments at the bottom of this file for an explanation of this
     live_neighbours = D(north, :) + D(south, :) + D(:, east) + D(:, west) ...
                     + D(north, east) + D(north, west) + D(south, east) + D(south, west);
 
-
+    
     % There are only 2 ways that a cell can live in the Game of Life:
     alive_rule_1 = (live_neighbours > 10) & (live_neighbours < 16);        % a cell lives if it has 3 live neighbours
     % alive_rule_2 = A & live_neighbours == 2;    % a cell lives if it's alive already, and has 2 live neighbours
 
     % These two rules determine the new state of every element
-    A = alive_rule_1 | alive_rule_2;
+    A = alive_rule_1;
     
     % If a the cell is determined to be live in the next step, add one, if
     % it is determined to be dead, then subtract 1
     D = D + A - ~A;
     % Count how many people are neighbouring the resource
 
-    neighbouring_resource = B(north, :) + B(south, :) + B(:, east) + B(:, west);
+    neighbouring_resource = D(north, :) + D(south, :) + D(:, east) + D(:, west);
 
     live_neighbouring_resource = L(north, :) + L(south, :) + L(:, east) + L(:, west);
 
@@ -60,6 +59,11 @@ while ~done % See comments at the bottom of this file for an explanation of this
     % people to join
 
     resource_rule = neighbouring_resource > 1;
+
+    neighbouring_resource_rule = neighbouring_resource > 0;
+    if neighbouring_resource_rule(:,:) == 1
+        B(:,:) = 1;
+    end
 
     live_neighbouring_resource_rule = live_neighbouring_resource > 1;
 
