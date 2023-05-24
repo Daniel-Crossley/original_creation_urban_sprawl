@@ -47,8 +47,8 @@ while ~done % See comments at the bottom of this file for an explanation of this
         for j=2:C-1
             % Count live neighbours, count types of neighbours in Moore region
             % If the cell is live, standard ruleset
-            if (grid(i,j) == 0) || (grid(i,j) == 2)
-                if resource_neighbours == 0 % If no resource neighbours, run standard game of life
+            if (grid(i,j) == 2)
+                if resource_neighbours(i,j) == 0 % If no resource neighbours, run standard game of life
                     if live_neighbours(i,j) == 3
                         next_grid(i,j) = 1;
                     else
@@ -57,15 +57,30 @@ while ~done % See comments at the bottom of this file for an explanation of this
                 else % There is a resource neighbour - becomes a resource neigbour itself
                     next_grid(i,j) = 2;
                 end
-            elseif (grid(i,j) == 1)
-                if live_neighbours(i,j) == 3 || live_neighbours(i,j) == 2
-                    next_grid(i, j) = 1;
+            elseif (grid(i,j) == 0)
+                if live_neighbours(i,j) == 3
+                    next_grid(i,j) = 1;
                 else
-                    next_grid(i, j) = 0;
+                    next_grid(i,j) = 0;
+                end
+            
+            elseif grid(i,j) == 1
+                if resource_neighbours(i,j) == 0
+                    if live_neighbours(i,j) == 3 || live_neighbours(i,j) == 2
+                        next_grid(i, j) = 1;
+                    else
+                        next_grid(i, j) = 0;
+                    end
+                else
+                    next_grid(i,j) = 2;
                 end
             elseif grid(i,j) == 3
-                next_resource_grid(i,j) = resource_grid(i,j) - resource_neighbours(i,j);% number of touching cells
-                next_grid(i,j) = 3;
+                if resource_grid(i,j) > 0    
+                    next_resource_grid(i,j) = resource_grid(i,j) - resource_neighbours(i,j);% number of touching cells
+                    next_grid(i,j) = 3;
+                else
+                    grid(i,j) = 0;
+                end
             end
                 
     
@@ -76,6 +91,7 @@ while ~done % See comments at the bottom of this file for an explanation of this
     end
     
     grid = next_grid;
+    resource_grid = next_resource_grid;
     imagesc(grid); % this has the same effect as the line above, but is slower
     drawnow
 end
