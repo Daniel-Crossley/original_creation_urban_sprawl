@@ -43,7 +43,7 @@ west  = [C 1:C-1];     % indices of west neighbour
 % Show the initial frame in the animation
 set(figure, 'Visible', 'on', 'Position', get(0,'Screensize'))
 set(gcf, 'KeyPressFcn', @KeyPressed) % this allows us to react to any key pressed in the figure window
-handle = imagesc(grid); % save the handle for when we want to update the image later
+handle = imagesc(imgaussfilt(grid,3)); % save the handle for when we want to update the image later
 title('Press any key to finish')
 drawnow
 %% Simulation 
