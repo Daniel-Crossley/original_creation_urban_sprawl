@@ -142,10 +142,6 @@ while ~done % See comments at the bottom of this file for an explanation of this
     resource_type = next_resource_type;
 
     grid_gaussian = imgaussfilt(grid,3);
-    % Make sure that grid colours don't change when resources run out
-    %for i=0:3
-    %    grid_colour(grid == i) = i;
-    %end
 
     imagesc(grid_gaussian, [0 1.5]); % Display the coloured grid
     drawnow
