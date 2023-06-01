@@ -1,31 +1,28 @@
-function[] = urban_sprawl(R,C, number_of_resources, num_steps, resource_value)
-
-% spawn_density = 0.2;
+function[] = urban_sprawl(R,C, number_of_resources, num_steps, resource_value, spawn_density)
 
 % Initialise matrices
-grid = zeros(R,C);
-grid_colour = zeros(R,C); 
-neighbouring_resource = zeros(R,C);
-resource_type = zeros(R, C);
-live_neighbours = zeros(R,C);
-resource_neighbours = zeros(R,C);
-resource_grid = zeros(R,C);
+grid = zeros(R,C); % Grid for game of life
+neighbouring_resource = zeros(R,C); % Matrix to determine if a cell is neighbouring a resource or a resource neighbour
+resource_type = zeros(R, C); % Labelling each type of resource/resource neighbour - each resource will have a different type
+live_neighbours = zeros(R,C); % Count for number of live cells neighbouring each cell
+resource_neighbours = zeros(R,C); % Count for number of resources/resource neighbours around each cell
+resource_grid = zeros(R,C); % Count for number of resources available at each particular resource node
 
 % Setting 
-spawn = false(R/2,C/2); %setting spawn matrix
-spawn(:,:) = rand(R/2,C/2) < 0.2; %randomising spawnpoint
-grid( (R/4) : (3*R/4-1) , (C/4) : (3*C/4-1)) = spawn;
+spawn = false(R/2,C/2); % Setting spawn matrix to be half the size of the grid
+spawn(:,:) = rand(R/2,C/2) < spawn_density; % Randomising initial spawn
+grid( (R/4) : (3*R/4-1) , (C/4) : (3*C/4-1)) = spawn; % Setting spawn matrix in the centre of the grid
 
 
 % Initialising cell array to contain matrix for each resource
-resource_cell_array = cell(number_of_resources,1);
-placement_x = randi(R,1, number_of_resources);
-placement_y = randi(C,1, number_of_resources);
+resource_cell_array = cell(number_of_resources,1); % Will hold all the individual matrices for each resource
+placement_x = randi(R,1, number_of_resources); % X-location for each resource in an array that is the length of the number of reousrces
+placement_y = randi(C,1, number_of_resources); % Y-location for each resource
 
-for i=1:number_of_resources
-    grid(placement_x(i), placement_y(i)) = 3;
-    resource_type(placement_x(i), placement_y(i)) = i;
-    resource_grid(placement_x(i), placement_y(i)) = resource_value;
+for i=1:number_of_resources % Iterate through each integer, defining the resource node, its placement and value on the grid
+    grid(placement_x(i), placement_y(i)) = 3; % Setting grid type to 3 - defines a resource node
+    resource_type(placement_x(i), placement_y(i)) = i; % Set the resource type
+    resource_grid(placement_x(i), placement_y(i)) = resource_value; % Set the node's resource count
 end
 
 % Defining the next grid iteration to match the initial grid configuration before being edited within the while loop
@@ -41,8 +38,7 @@ west  = [C 1:C-1];     % indices of west neighbour
 % Show the initial frame in the animation
 set(figure, 'Visible', 'on', 'Position', get(0,'Screensize'))
 set(gcf, 'KeyPressFcn', @KeyPressed) % this allows us to react to any key pressed in the figure window
-%handle = imagesc(imgaussfilt(grid,3)); % save the handle for when we want to update the image later
-title('Press any key to finish')
+title('Urbanisation Simulation')
 drawnow
 
 %-----------------------------------
@@ -50,12 +46,13 @@ drawnow
 
 %% Simulation 
 % Initialize variables for counting and area
-time_steps = zeros(1, num_steps);
-green_counts = zeros(1, num_steps);
-green_areas = zeros(1, num_steps);
-blue_counts = zeros(1, num_steps);
-blue_areas = zeros(1, num_steps);
+time_steps = zeros(1, num_steps); % 
+%green_counts = zeros(1, num_steps);
+%green_areas = zeros(1, num_steps);
+%blue_counts = zeros(1, num_steps);
+%blue_areas = zeros(1, num_steps);
 green_proportions = zeros(1, num_steps);
+
 done = false;
 step = 1;
 %--------------------------------------------
@@ -72,13 +69,14 @@ while ~done && step <= num_steps % See comments at the bottom of this file for a
     
     % Count number of resource neighbouring cells that neighbour each cell
     live_resource_neighbours = (grid(north, :) == 2) + (grid(north, west) == 2) + (grid(north, east) == 2) + (grid(:, west) == 2) + (grid(:, east) == 2) + (grid(south, west) == 2) + (grid(south, :) == 2) + (grid(south, east) == 2);
-
+    
+    % Defining what resource a cell is neighbouring
     for i=1:number_of_resources 
         neighbouring_resource = (resource_type(north, :) == i) + (resource_type(north, west) == i) + (resource_type(north, east) == i) + (resource_type(:, west) == i) + (resource_type(:, east) == i) + (resource_type(south, west) == i) + (resource_type(south, :) == i) + (resource_type(south, east) == i);
         resource_cell_array{i} = neighbouring_resource;
     end
 
-    for i=2:R-1
+    for i=2:R-1 % Start at 2 and end at R-1, otherwise the north, south, east and west indices would give an error at the boundaries  
         for j=2:C-1
             % Count live neighbours, count types of neighbours in Moore region
             % If the cell is live, standard ruleset
@@ -98,46 +96,47 @@ while ~done && step <= num_steps % See comments at the bottom of this file for a
             
             % Dead cell rules
             elseif (grid(i,j) == 0)
-                if live_neighbours(i,j) == 3
+                if live_neighbours(i,j) == 3 % If there are three live neighbours, turn it into an alive cell
                     next_grid(i,j) = 1;
                 else
                     next_grid(i,j) = 0;
                 end
             
 
-            % Resource rules
+            % Live cell rules
             elseif grid(i,j) == 1
-                if resource_neighbours(i,j) == 0
+                if resource_neighbours(i,j) == 0 % If it is not neighbouring any resources, run standard Game of Life
                     if live_neighbours(i,j) == 3 || live_neighbours(i,j) == 2
                         next_grid(i,j) = 1;
                     else
                         next_grid(i,j) = 0;
                     end
-                else
-                    next_grid(i,j) = 2;
-                    for a=1:number_of_resources
+                else % It is neighbouring a resource
+                    next_grid(i,j) = 2; % Update status to become a 'resource neighbour'
+                    for a=1:number_of_resources % Find which resource type it is neighbouring by running through the cell array
                         neighbouring_resource_type = resource_cell_array{a};
-                        if neighbouring_resource_type(i,j) > 0
+                        if neighbouring_resource_type(i,j) > 0 % If it is neighbouring the resource, set it to that resource type
                             next_resource_type(i,j) = a;
                         end
                     end
-                    neighbouring_resource(i,j) = 1;
+                    neighbouring_resource(i,j) = 1; % Set this to true
                 end
             
-            % Resource rules
+            % Resource node rules
             elseif grid(i,j) == 3
-                if resource_grid(i,j) < 0
+                if resource_grid(i,j) < 0 % If the count of the resource is deplenished, set the resource cell as a dead cell
                     next_grid(i,j) = 0;
-                    for a=1:number_of_resources
+                    for a=1:number_of_resources % Set all neighbours of the resource back to live cells, removing their resource types and if they are neighbouring a resource
                         if resource_type(i,j) == a
                             next_resource_type(next_resource_type == a) = 0;
                             next_grid(next_resource_type == a) = 1;
+                            neighbouring_resource(neighbouring_resource == 1) = 0;
                         end
                     end
-                else
-                    for a=1:number_of_resources
+                else % Resource node is still alive
+                    for a=1:number_of_resources % Depending on which resource it is, remove the number of resources equal to the number of cells connected to the resource
                         if resource_type(i,j) == a
-                            next_resource_grid(i,j) = resource_grid(i,j) - sum(resource_type(:) == a);
+                            next_resource_grid(i,j) = resource_grid(i,j) - (sum(resource_type(:) == a)-1); % sum() - 1 so that the count does not include the resource node itself
                         end
                     end
                     next_grid(i,j) = 3;
@@ -146,25 +145,23 @@ while ~done && step <= num_steps % See comments at the bottom of this file for a
         end
     end
     
+    % Final checks to ensure all resource neighbours disconnected from a resource become live members again
     live_resource_neighbours = (next_grid(north, :) == 2) + (next_grid(north, west) == 2) + (next_grid(north, east) == 2) + (next_grid(:, west) == 2) + (next_grid(:, east) == 2) + (next_grid(south, west) == 2) + (next_grid(south, :) == 2) + (next_grid(south, east) == 2);
     resource_neighbours = (next_grid(north, :) > 1) + (next_grid(north, west) > 1) + (next_grid(north, east) > 1) + (next_grid(:, west) > 1) + (next_grid(:, east) > 1) + (next_grid(south, west) > 1) + (next_grid(south, :) > 1) + (next_grid(south, east) > 1);
-
     next_grid((next_grid == 2) & ((live_resource_neighbours == 0) | (next_resource_type == 0) | (resource_neighbours == 0))) = 1;
     
     % Updating matrices
     grid = next_grid;
-
-
-
-        % -----------plotting area----------------
-
     resource_grid = next_resource_grid;
     resource_type = next_resource_type;
+    
+    % Displaying matrix
     grid_gaussian = imgaussfilt(grid,3);
-
-    image = imagesc(grid_gaussian, [0 1.5]); % Display the coloured grid
+    imagesc(grid_gaussian, [0 1.5]); % Display the coloured grid
     drawnow
     
+    % -----------plotting area----------------
+
     % Calculate and graph area/count of green pixels
     green_count = sum(grid(:) == 2);
     blue_count = sum(grid(:) == 1);
@@ -173,14 +170,9 @@ while ~done && step <= num_steps % See comments at the bottom of this file for a
     blue_area = blue_count / (R * C);
 
     green_proportion = green_area / blue_area;
-
     
-    % Store count and area at each time step
+    % Store proportion at each time step
     time_steps(step) = step;
-    green_counts(step) = green_count;
-    green_areas(step) = green_area;
-    blue_counts(step) = blue_count;
-    blue_areas(step) = blue_area;
     green_proportions(step) = green_proportion;
     
     step = step + 1; % Increment the step counter
@@ -189,8 +181,6 @@ end
 
 % Trim the variables to the actual number of steps taken
 time_steps = time_steps(1:step-1);
-green_counts = green_counts(1:step-1);
-green_areas = green_areas(1:step-1);
 green_proportions = green_proportions(1:step-1);
 
 %Plot the area over time
