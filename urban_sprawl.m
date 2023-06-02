@@ -180,7 +180,7 @@ time_steps = time_steps(1:step-1);
 green_proportions = green_proportions(1:step-1);
 
 %Plot the area over time
-subplot(2, 1, 2);
+%subplot(2, 1, 2);
 plot(time_steps, green_proportions);
 xlabel('Time Step');
 ylabel('Green Pixel Proportion');
