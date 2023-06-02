@@ -161,9 +161,6 @@ while ~done && step <= num_steps % See comments at the bottom of this file for a
     % Calculate and graph area/count of green pixels
     green_count = sum(grid(:) == 2);
     blue_count = sum(grid(:) == 1);
-    
-    %green_area = green_count / (R * C);
-    %blue_area = blue_count / (R * C);
 
     green_proportion = green_count / blue_count;
     
