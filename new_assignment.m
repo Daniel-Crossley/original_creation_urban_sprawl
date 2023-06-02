@@ -63,7 +63,7 @@ green_areas = zeros(1, num_steps);
 done = false;
 step = 1;
 %--------------------------------------------
-while ~done && step <= num_steps% See comments at the bottom of this file for an explanation of this "while" loop.
+while ~done || step <= num_steps% See comments at the bottom of this file for an explanation of this "while" loop.
             % For now, simply read this literally as saying we should take another step "while not done"
 
     live_neighbours = (grid(north, :) == 1) + (grid(north, west) == 1) + (grid(north, east) == 1) + (grid(:, west) == 1) + (grid(:, east) == 1) + (grid(south, west) == 1) + (grid(south, :) == 1) + (grid(south, east) == 1);

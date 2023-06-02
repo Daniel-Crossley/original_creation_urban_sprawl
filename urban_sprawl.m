@@ -162,12 +162,12 @@ while ~done && step <= num_steps % See comments at the bottom of this file for a
     green_count = sum(grid(:) == 2);
     blue_count = sum(grid(:) == 1);
     
-    green_area = green_count / (R * C);
-    blue_area = blue_count / (R * C);
+    %green_area = green_count / (R * C);
+    %blue_area = blue_count / (R * C);
 
-    green_proportion = green_area / blue_area;
+    green_proportion = green_count / blue_count;
     
-    % Store proportion at each time step
+    % Store proportion at each time stesp
     time_steps(step) = step;
     green_proportions(step) = green_proportion;
     
@@ -183,8 +183,8 @@ green_proportions = green_proportions(1:step-1);
 %subplot(2, 1, 2);
 plot(time_steps, green_proportions);
 xlabel('Time Step');
-ylabel('Green Pixel Proportion');
-title('Green Pixel Proportion over Time');
+ylabel('Resource Bound Proportion');
+title('Resource Bound Proportion over Time');
 
 % ---------------plotting area-----------------------
 
