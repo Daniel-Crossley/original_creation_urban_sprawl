@@ -46,11 +46,7 @@ drawnow
 
 %% Simulation 
 % Initialize variables for counting and area
-time_steps = zeros(1, num_steps); % 
-%green_counts = zeros(1, num_steps);
-%green_areas = zeros(1, num_steps);
-%blue_counts = zeros(1, num_steps);
-%blue_areas = zeros(1, num_steps);
+time_steps = zeros(1, num_steps); %
 green_proportions = zeros(1, num_steps);
 
 done = false;
